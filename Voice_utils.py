@@ -9,6 +9,7 @@ class Voice_Player:
         self.author = msg.author
         self.content = msg.content
         self.msg = msg
+	self.vc = None
 
     async def join_voice(self):
         try:
@@ -16,7 +17,6 @@ class Voice_Player:
             self.vc = await discord.VoiceChannel.connect(author.voice.channel)
         except Exception as e:
             print(e)
-        return self.vc
 
     async def join_leave(self):
         author = self.author
@@ -24,14 +24,18 @@ class Voice_Player:
         asyncio.run_coroutine_threadsafe(self.vc.disconnect(), self.vc.loop)
 
     def voice_disconnect(self):
-        asyncio.run_coroutine_threadsafe(self.vc.disconnect(), self.vc.loop)
+	if self.vc is not None:
+            asyncio.run_coroutine_threadsafe(self.vc.disconnect(), self.vc.loop)
         #await self.vc.disconnect()
 
     async def file_play(self, file):
-        vc = self.vc
-        vc.play(discord.FFmpegPCMAudio(file))
+	if self.vc is not None:
+            vc = self.vc
+            vc.play(discord.FFmpegPCMAudio(file))
 
     async def url_play(self, url):
+	if self.vc is None:
+            return
         try:
             os.remove('yt.m4a')
             vc = self.vc
